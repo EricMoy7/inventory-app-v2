@@ -14,7 +14,6 @@ app.post('/createUserCreds', async (req: any, res: any): Promise<void> => {
     
     const payload = req.body as UserCredentials;
     const { uid, sellerId, mwsAuthToken } = payload;
-    console.log({uid, sellerId, mwsAuthToken})
     
     try {
         await credentials.createUserCreds(uid, sellerId, mwsAuthToken);

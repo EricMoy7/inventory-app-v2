@@ -19,9 +19,17 @@ const Header: FC = () => {
     <nav className="navbar is-spaced has-shadow">
       <div className="container">
         <div className="navbar-brand">
-          <Link className="navbar-item" to={!authenticated ? "/" : "/dashboard"}>AppName</Link>
+        <div className="navbar-menu">
+        {!authenticated ?
+            <Link className="navbar-item" to={!authenticated ? "/" : "/dashboard"}>AppName</Link>
+          :
+          <div className="navbar-start">
+            <Link className="navbar-item" to={!authenticated ? "/" : "/dashboard"}>AppName</Link>
+            <Link className="navbar-item" to={!authenticated ? "/" : "/settings"}>Settings</Link>
+          </div>
+        }
         </div>
-
+        </div>
         <div className="navbar-end">
           <div className="navbar-items">
             {!authenticated ? <div className="buttons">

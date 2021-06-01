@@ -9,6 +9,8 @@ import SignIn from './components/pages/SignIn';
 import ForgotPassword from './components/pages/ForgotPassword';
 import Homepage from './components/pages/Homepage';
 import Dashboard from './components/pages/Dashboard';
+import Settings from './components/pages/Settings';
+
 import PrivateRoute from './components/auth/PrivateRoute';
 import PublicRoute from './components/auth/PublicRoute';
 import Loader from './components/UI/Loader';
@@ -52,6 +54,7 @@ const App: FC = () => {
         <PublicRoute path="/signin" component={SignIn} exact />
         <PublicRoute path="/forgot-password" component={ForgotPassword} exact />
         <PrivateRoute path="/dashboard" component={Dashboard} exact />
+        <PrivateRoute path="/settings" component={Settings} exact />
       </Switch>
     </BrowserRouter>
   );

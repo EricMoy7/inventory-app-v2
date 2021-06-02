@@ -1,12 +1,6 @@
-import * as MwsApi from 'amazon-mws';
+import amazonMws from '../mwsApi';
 import * as userCreds from '../userData/getUserCreds';
 import { UserCredentials } from '../../../types';
-
-const amazonMws = new MwsApi();
-amazonMws.setApiKey(
-  'AKIAIPHR7XOXFJFBWQEQ',
-  '93US6plGwZWzZ02I1LjHEQo4kmNNiki3NewJ0sfB'
-);
 
 const config = {
   requestReport: 'RequestReport',

@@ -28,4 +28,5 @@ export interface ReportIdData {
   reportType: string;
   reportId?: string;
   requestId?: string;
+  version?: string;
 }

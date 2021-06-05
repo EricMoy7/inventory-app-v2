@@ -9,39 +9,34 @@ import { ReportIdData } from '../../types';
 
 const GetReportRequest = async (
   uid: string,
-  reportParams: Array<{ [key: string]: string }>
+  reportParams: Array<ReportIdData>
   //TODO: create interface for return type
 ): Promise<Array<ReportIdData>> => {
   const batch = firebase.firestore().batch();
 
   let reportArray: Array<ReportIdData> = [];
 
-  for (let i = 0; i < reportParams.length; i++) {
-    //Get user data from DB
-    const amazonCred = await userCreds.getUserCreds(uid);
+  //Get user data from DB
+  const amazonCred = await userCreds.getUserCreds(uid);
 
+  for (let i = 0; i < reportParams.length; i++) {
     //Get requestId from amazon mws api
     const requestId = await getReportRequest(reportParams[i], amazonCred);
 
     //Setup data to return to user
     const reportData = {
-      reportType: reportParams.reportType,
+      reportType: reportParams[i].reportType,
       requestId,
     };
     reportArray = [...reportArray, reportData];
 
     //Set document DB path
-    const path = `users/${uid}`;
-
-    //Setup object with previous data to return to DB
-    let requestDetails = { ...amazonCred[reportParams.reportType], requestId };
+    const path = `users/${uid}/reportIdentifiers/${reportData.reportType}`;
 
     //Setup batch for each item of reportParams with Request details
     batch.set(
       firebase.firestore().doc(path),
-      {
-        [reportParams[i].reportType]: requestDetails,
-      },
+      { requestId: requestId, requestIdTime: Date.now() },
       { merge: true }
     );
   }
@@ -54,61 +49,108 @@ const GetReportRequest = async (
 
 const GetReportList = async (
   uid: string,
-  reportParams: Array<{ [key: string]: string }>
-) => {
+  reportParams: Array<ReportIdData>
+): Promise<Array<ReportIdData>> => {
+  //Initializes firestore batch
   const batch = firebase.firestore().batch();
 
+  let reportArray: Array<ReportIdData> = [];
+
+  //Begin looping through multiple report types
   for (let i = 0; i < reportParams.length; i++) {
+    //Get amazon and user data
     const amazonCred = await userCreds.getUserCreds(uid);
-    const requestId = await amazonCred[reportParams.reportType].requestId;
+
+    //Set report Identifiers tab for user
+    const path = `users/${uid}/reportIdentifiers/${reportParams[i].reportType}`;
+
+    //Get the request ID from DB that was generated with getReportRequest
+    const reportDoc = await firebase.firestore().doc(path).get();
+    const requestId = reportDoc.data()!.requestId;
+
+    //Get the report ID from MWS
     const reportId = await getReportRequestList(
       requestId,
       amazonCred,
-      reportParams
+      reportParams[i]
     );
-    const path = `users/${uid}`;
-    let requestDetails = { ...amazonCred[reportParams.reportType], reportId };
+
+    //List of report objects for user response
+    const reportData = {
+      reportType: reportParams[i].reportType,
+      requestId,
+      reportId,
+    };
+    reportArray = [...reportArray, reportData];
+
+    //Set new reportId values in database
     batch.set(
       firebase.firestore().doc(path),
       {
-        [reportParams.reportType]: requestDetails,
+        reportId: reportId,
+        reportIdTime: Date.now(),
       },
       { merge: true }
     );
   }
+
   batch.commit();
+  return reportArray;
 };
 
 const GetReport = async (
   uid: string,
-  reportParams: Array<{ [key: string]: string }>
+  reportParams: Array<ReportIdData>
 ): Promise<void> => {
   const batch = firebase.firestore().batch();
+
+  //Get user data from DB
   const amazonCred = await userCreds.getUserCreds(uid);
 
   for (let i = 0; i < reportParams.length; i++) {
-    const reportId = await amazonCred[reportParams[i].reportType].reportId;
+    const path = `users/${uid}/reportIdentifiers/${reportParams[i].reportType}`;
+
+    const reportDoc = await firebase.firestore().doc(path).get();
+    const reportId = reportDoc.data()!.reportId;
+
     const requestData = await getReport(reportId, amazonCred, reportParams[i]);
-    console.log('Found data');
     const data = requestData.data;
 
     //Check for which SKU key
-    //TODO: Make this insto a switch statement
+    //TODO: Make this into a switch statement
     let skuKey: string = '';
     if (data[0]['Merchant SKU']) {
       skuKey = 'Merchant SKU';
     } else if (data[0]['seller-sku']) {
       skuKey = 'seller-sku';
+    } else if (data[0]['sku']) {
+      skuKey = 'sku';
     } else {
-      console.log('Unknown key for data');
+      console.log('SKU KEY NOT FOUND');
     }
 
-    const path = `users/${uid}/${reportParams[i].reportType}`;
+    const snap = await firebase
+      .firestore()
+      .collection(`users/${uid}/${reportParams[i].reportType}`)
+      .get();
+    snap.docs.forEach(async (doc) => {
+      await firebase
+        .firestore()
+        .doc(`users/${uid}/${reportParams[i].reportType}/${doc.id}`)
+        .delete();
+    });
+
     for (let j = 0; j < data.length; j++) {
       const sellerSku = data[j][skuKey];
-      batch.set(firebase.firestore().doc(`${path}/${sellerSku}`), data[j], {
-        merge: true,
-      });
+      batch.set(
+        firebase
+          .firestore()
+          .doc(`users/${uid}/${reportParams[i].reportType}/${sellerSku}`),
+        data[j],
+        {
+          merge: true,
+        }
+      );
     }
   }
   batch.commit();

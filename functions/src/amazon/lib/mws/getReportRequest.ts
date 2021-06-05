@@ -1,5 +1,5 @@
 import amazonMws from '../mwsApi';
-import { UserCredentials, ActiveListingsReport } from '../../../types';
+import { UserCredentials, ReportIdData } from '../../../types';
 
 const config = {
   requestReport: 'RequestReport',
@@ -10,7 +10,7 @@ const config = {
 amazonMws.setResponseFormat('JSON');
 
 const getReportRequest = async (
-  reportParams: { [key: string]: string },
+  reportParams: ReportIdData,
   amazonCred: UserCredentials
 ): Promise<string> => {
   const response = await amazonMws.reports.submit({
@@ -25,21 +25,20 @@ const getReportRequest = async (
 };
 
 const getReportRequestList = async (
-  reportId: string,
+  requestId: string,
   amazonCred: UserCredentials,
-  reportParams: { [key: string]: string }
+  reportParams: ReportIdData
 ) => {
   let response;
   try {
     do {
       await new Promise((r) => setTimeout(r, 5000));
-      console.log('Waiting done sending response');
       response = await amazonMws.reports.search({
         Version: reportParams.version,
         Action: config.getReportRequestList,
         SellerId: amazonCred.sellerId,
         MWSAuthToken: amazonCred.mwsAuthToken,
-        'ReportRequestIdList.Id.1': reportId,
+        'ReportRequestIdList.Id.1': requestId,
       });
       if (response.ReportRequestInfo.ReportProcessingStatus !== '_CANCELLED_') {
         break;
@@ -55,7 +54,7 @@ const getReportRequestList = async (
 const getReport = async (
   reportId: string,
   amazonCred: UserCredentials,
-  reportParams: { [key: string]: string }
+  reportParams: ReportIdData
 ) => {
   let response;
   try {

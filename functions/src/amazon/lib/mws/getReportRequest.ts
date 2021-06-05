@@ -1,6 +1,5 @@
 import amazonMws from '../mwsApi';
-import * as userCreds from '../userData/getUserCreds';
-import { UserCredentials } from '../../../types';
+import { UserCredentials, ActiveListingsReport } from '../../../types';
 
 const config = {
   requestReport: 'RequestReport',
@@ -11,42 +10,30 @@ const config = {
 amazonMws.setResponseFormat('JSON');
 
 const getReportRequest = async (
-  uid: string,
-  reportParams: Record<string, unknown>
+  reportParams: { [key: string]: string },
+  amazonCred: UserCredentials
 ): Promise<string> => {
-  const amazonCred = await userCreds.getUserCreds(uid);
-  return amazonMws.reports
-    .submit({
-      Version: reportParams.version,
-      Action: config.requestReport,
-      SellerId: amazonCred.sellerId,
-      MWSAuthToken: amazonCred.mwsAuthToken,
-      ReportType: reportParams.reportType,
-    })
-    .then((response) => {
-      return getReportRequestList(
-        response.ReportRequestInfo.ReportRequestId,
-        amazonCred,
-        reportParams
-      );
-    })
-    .then((reportId) => {
-      return getReport(reportId, amazonCred, reportParams);
-    })
-    .catch((err) => {
-      console.log('error: ', err);
-    });
+  const response = await amazonMws.reports.submit({
+    Version: reportParams.version,
+    Action: config.requestReport,
+    SellerId: amazonCred.sellerId,
+    MWSAuthToken: amazonCred.mwsAuthToken,
+    ReportType: reportParams.reportType,
+  });
+
+  return response.ReportRequestInfo.ReportRequestId;
 };
 
 const getReportRequestList = async (
   reportId: string,
   amazonCred: UserCredentials,
-  reportParams: Record<string, unknown>
+  reportParams: { [key: string]: string }
 ) => {
   let response;
   try {
     do {
-      await new Promise((r) => setTimeout(r, 10000));
+      await new Promise((r) => setTimeout(r, 5000));
+      console.log('Waiting done sending response');
       response = await amazonMws.reports.search({
         Version: reportParams.version,
         Action: config.getReportRequestList,
@@ -54,6 +41,9 @@ const getReportRequestList = async (
         MWSAuthToken: amazonCred.mwsAuthToken,
         'ReportRequestIdList.Id.1': reportId,
       });
+      if (response.ReportRequestInfo.ReportProcessingStatus !== '_CANCELLED_') {
+        break;
+      }
     } while (response.ReportRequestInfo.ReportProcessingStatus !== '_DONE_');
     return response.ReportRequestInfo.GeneratedReportId;
   } catch (err) {
@@ -62,11 +52,10 @@ const getReportRequestList = async (
   }
 };
 
-// eslint-disable-next-line max-len
 const getReport = async (
   reportId: string,
   amazonCred: UserCredentials,
-  reportParams: Record<string, unknown>
+  reportParams: { [key: string]: string }
 ) => {
   let response;
   try {
@@ -84,4 +73,4 @@ const getReport = async (
   }
 };
 
-export default getReportRequest;
+export { getReportRequest, getReportRequestList, getReport };

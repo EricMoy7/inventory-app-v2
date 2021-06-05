@@ -1,6 +1,7 @@
 import credentials from '../amazon/functions/credentials';
-import { UserCredentials, Data, ActiveListingsReport } from '../types';
-import * as report from '../amazon/functions/getReport';
+import { UserCredentials, Data } from '../types';
+import { GetReport } from '../amazon/functions/getReport';
+
 import express = require('express');
 import cors = require('cors');
 
@@ -41,33 +42,16 @@ app.get(
 );
 
 app.get(
-  '/report/getReport',
-  async (req: express.Request, res: express.Response): Promise<void> => {
-    const { uid, version, reportType } = req.query as Data;
-    try {
-      const data = await report.getReport(uid, reportType, version);
-      res.send(data);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-);
-
-app.get(
-  '/report/updateActiveList',
+  '/report/getReportRequest',
   async (req: express.Request, res: express.Response): Promise<void> => {
     const { uid } = req.query as Data;
-    const reportType = '_GET_MERCHANT_LISTINGS_DATA_';
-    const version = '2009-01-01';
+    let reportParams = req.query.reportParams as string;
+
+    const arrayParams = JSON.parse(reportParams);
 
     try {
-      let data = (await report.getReport(
-        uid,
-        reportType,
-        version
-      )) as ActiveListingsReport;
-      await report.setActiveListings(uid, data);
-      res.send('Active Listings Updated!');
+      const listOfRequestIds = await GetReport(uid, arrayParams);
+      res.send(listOfRequestIds);
     } catch (err) {
       console.log(err);
     }

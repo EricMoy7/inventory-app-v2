@@ -1,11 +1,5 @@
 import * as functions from 'firebase-functions';
 import app from './express/express';
-import {
-  getReportRequest,
-  getReportRequestList,
-  getReport,
-} from './amazon/lib/mws/getReportRequest';
-import * as userCreds from './amazon/lib/userData/getUserCreds';
 import firebase from './firebase/service';
 
 // // Start writing Firebase Functions
@@ -16,64 +10,39 @@ exports.app = functions
   .runWith({ memory: '1GB', timeoutSeconds: 180 })
   .https.onRequest(app);
 
-exports.scheduledReportRequest = functions.pubsub
-  .schedule('0 * * * *')
-  .timeZone('America/Chicago')
-  .onRun(async (context) => {
-    const userList = ['TIb07YIc9qgXsKf5DaFJvvWS7vg2'];
-    const batch = firebase.firestore().batch();
-    for (let i = 0; i < userList.length; i++) {
-      const amazonCred = await userCreds.getUserCreds(userList[i]);
-      const reportId = getReportRequest(
-        {
-          reportType: '_GET_FBA_FULFILLMENT_CURRENT_INVENTORY_DATA_',
-          version: '2009-01-01',
-        },
-        amazonCred
-      );
-      const path = `users/${amazonCred.id}`;
-      batch.set(
-        firebase.firestore().doc(path),
-        {
-          reportCurrentFbaInventory: {
-            reportId: reportId,
-            time: Date.now(),
-          },
-        },
-        { merge: true }
-      );
-    }
-    await batch.commit();
-    return null;
-  });
+interface Workers {
+  [key: string]: (options: any) => Promise<any>;
+}
 
-exports.scheduledReportRequest = functions.pubsub
-  .schedule('0 * * * *')
-  .timeZone('America/Chicago')
+exports.taskRunner = functions
+  .runWith({ memory: '2GB' })
+  .pubsub.schedule('*/5 * * * *')
   .onRun(async (context) => {
-    const userList = ['TIb07YIc9qgXsKf5DaFJvvWS7vg2'];
-    const batch = firebase.firestore().batch();
-    for (let i = 0; i < userList.length; i++) {
-      const amazonCred = await userCreds.getUserCreds(userList[i]);
-      const reportId = getReportRequest(
-        {
-          reportType: '_GET_FBA_FULFILLMENT_CURRENT_INVENTORY_DATA_',
-          version: '2009-01-01',
-        },
-        amazonCred
-      );
-      const path = `users/${amazonCred.id}`;
-      batch.set(
-        firebase.firestore().doc(path),
-        {
-          reportCurrentFbaInventory: {
-            reportId: reportId,
-            time: Date.now(),
-          },
-        },
-        { merge: true }
-      );
-    }
-    await batch.commit();
-    return null;
+    const now = firebase.firestore.Timestamp.now();
+
+    const query = firebase
+      .firestore()
+      .collection('tasks')
+      .where('performAt', '<=', now)
+      .where('status', '==', 'scheduled');
+
+    const tasks = await query.get();
+
+    const jobs: Promise<any>[] = [];
+
+    const workers: Workers = {
+      helloWorld: function () {
+        return firebase.firestore().collection('logs').add({ hello: 'world' });
+      },
+    };
+
+    tasks.forEach((snapshot) => {
+      const { worker, options } = snapshot.data();
+
+      const job = workers[worker](options)
+        .then(() => snapshot.ref.update({ status: 'complete' }))
+        .catch(() => snapshot.ref.update({ status: 'error' }));
+
+      jobs.push(job);
+    });
   });

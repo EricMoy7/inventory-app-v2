@@ -2,7 +2,7 @@ import { getReportParams } from '../lib/mws/getReportParams';
 import { getListofUserIds } from '../lib/userData/getListOfUserIds';
 import firebase from '../../firebase/service';
 
-export const reportTasks = async (): Promise<void> => {
+export const reportTasks = async (reportState: string): Promise<void> => {
   const listOfIds = await getListofUserIds();
   const Timestamp = firebase.firestore.Timestamp;
 
@@ -11,19 +11,31 @@ export const reportTasks = async (): Promise<void> => {
   for (let userId of listOfIds) {
     const reportParams = await getReportParams(userId);
     const promise = new Promise(async (resolve, reject) => {
-      for (let i = 0; i < 24; i++) {
+      let i = 0;
+      if (reportState === 'requestReportTask') {
+        i = 0;
+      } else if (reportState === 'requestReportListTask') {
+        i = 300;
+      } else if (reportState === 'getReportTask') {
+        i = 600;
+      } else {
+        console.log('Unknown reportState.');
+      }
+      for (i; i < 24; i++) {
         const scheduledTime = Math.round(timeInSeconds + (i / 24) * 86400);
+        let options: { [key: string]: any } = {
+          uid: userId,
+          reportType: reportParams,
+          version: '2009-01-01',
+        };
         await firebase
           .firestore()
           .collection(`tasks`)
           .add({
             performAt: new Timestamp(scheduledTime, 0),
             status: 'scheduled',
-            worker: 'report',
-            options: {
-              reportType: reportParams,
-              version: '2009-01-01',
-            },
+            worker: reportState,
+            options,
           });
       }
       resolve('Done');

@@ -8,7 +8,7 @@ import {
 
 import express = require('express');
 import cors = require('cors');
-import { reportTasks } from '../amazon/functions/reportTasks';
+// import { reportTasks } from '../amazon/functions/reportTasks';
 
 const app = express();
 app.use(cors());
@@ -97,16 +97,16 @@ app.get(
   }
 );
 
-app.get(
-  '/report/setTasks',
-  async (req: express.Request, res: express.Response): Promise<void> => {
-    try {
-      await reportTasks();
-      res.sendStatus(201);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-);
+// app.get(
+//   '/report/setTasks',
+//   async (req: express.Request, res: express.Response): Promise<void> => {
+//     try {
+//       await reportTasks();
+//       res.sendStatus(201);
+//     } catch (err) {
+//       console.log(err);
+//     }
+//   }
+// );
 
 export default app;

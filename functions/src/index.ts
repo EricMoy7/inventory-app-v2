@@ -1,4 +1,10 @@
 import * as functions from 'firebase-functions';
+import {
+  GetReportList,
+  GetReport,
+  GetReportRequest,
+} from './amazon/functions/getReport';
+import { reportTasks } from './amazon/functions/reportTasks';
 import app from './express/express';
 import firebase from './firebase/service';
 
@@ -34,6 +40,15 @@ exports.taskRunner = functions
       helloWorld: function () {
         return firebase.firestore().collection('logs').add({ hello: 'world' });
       },
+      requestReportTask: function (options) {
+        return GetReportRequest(options.uid, options.reportParams);
+      },
+      requestReportListTask: function (options) {
+        return GetReportList(options.uid, options.reportParams);
+      },
+      getReportTask: function (options) {
+        return GetReport(options.uid, options.reportParams);
+      },
     };
 
     tasks.forEach((snapshot) => {
@@ -45,4 +60,24 @@ exports.taskRunner = functions
 
       jobs.push(job);
     });
+  });
+
+//Look for a better way to write this promise stack
+exports.requestReportScheduler = functions.pubsub
+  .schedule('0 0 * * *')
+  .onRun((context) => {
+    const p1 = new Promise(async (resolve, reject) => {
+      await reportTasks('requestReportTask');
+      resolve('Success');
+    });
+    const p2 = new Promise(async (resolve, reject) => {
+      await reportTasks('requestReportListTask');
+      resolve('Success');
+    });
+    const p3 = new Promise(async (resolve, reject) => {
+      await reportTasks('getReportTask');
+      resolve('Success');
+    });
+
+    Promise.all([p1, p2, p3]);
   });

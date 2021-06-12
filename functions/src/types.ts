@@ -25,7 +25,7 @@ export interface InventoryData {
 }
 
 export interface ReportIdData {
-  reportType: string;
+  reportType: Array<string>;
   reportId?: string;
   requestId?: string;
   version?: string;

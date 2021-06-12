@@ -1,6 +1,6 @@
 import firebase from '../../../firebase/service';
 
-export const getReportParams = async (uid: string): Promise<Array<string>> => {
+export const getReportTypes = async (uid: string): Promise<Array<string>> => {
   const snapshot = await firebase
     .firestore()
     .collection(`users/${uid}/reportIdentifiers`)

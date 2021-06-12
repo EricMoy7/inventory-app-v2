@@ -41,12 +41,15 @@ exports.taskRunner = functions
         return firebase.firestore().collection('logs').add({ hello: 'world' });
       },
       requestReportTask: function (options) {
+        console.log(options);
         return GetReportRequest(options.uid, options.reportParams);
       },
       requestReportListTask: function (options) {
+        console.log(options);
         return GetReportList(options.uid, options.reportParams);
       },
       getReportTask: function (options) {
+        console.log(options);
         return GetReport(options.uid, options.reportParams);
       },
     };
@@ -79,5 +82,24 @@ exports.requestReportScheduler = functions.pubsub
       resolve('Success');
     });
 
-    Promise.all([p1, p2, p3]);
+    return Promise.all([p1, p2, p3]);
   });
+
+// exports.test = functions.https.onRequest((req, res) => {
+//   const p1 = new Promise(async (resolve, reject) => {
+//     await reportTasks('requestReportTask');
+//     resolve('Success');
+//   });
+
+//   const p2 = new Promise(async (resolve, reject) => {
+//     await reportTasks('requestReportListTask');
+//     resolve('Success');
+//   });
+
+//   const p3 = new Promise(async (resolve, reject) => {
+//     await reportTasks('getReportTask');
+//     resolve('Success');
+//   });
+
+//   Promise.all([p1, p2, p3]).then((result) => res.sendStatus(200));
+// });

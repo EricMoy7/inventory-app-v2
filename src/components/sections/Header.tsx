@@ -25,6 +25,7 @@ const Header: FC = () => {
           :
           <div className="navbar-start">
             <Link className="navbar-item" to={!authenticated ? "/" : "/dashboard"}>AppName</Link>
+            <Link className="navbar-item" to={!authenticated ? "/" : "/amazon-inventory"}>Amazon Inventory</Link>
             <Link className="navbar-item" to={!authenticated ? "/" : "/settings"}>Settings</Link>
           </div>
         }

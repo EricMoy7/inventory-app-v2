@@ -3,6 +3,7 @@ import {
   getReportRequestList,
   getReport,
 } from '../lib/mws/getReportRequest';
+import getProductData from '../lib/mws/getProductData';
 import * as userCreds from '../lib/userData/getUserCreds';
 import firebase from '../../firebase/service';
 import { ReportIdData } from '../../types';
@@ -142,11 +143,13 @@ const GetReport = async (
 
     for (let j = 0; j < data.length; j++) {
       const sellerSku = data[j][skuKey];
+      const productData = await getProductData(data[j]['asin'], amazonCred);
+      const mergedData = { ...productData, ...data[j] };
       batch.set(
         firebase
           .firestore()
           .doc(`users/${uid}/${reportParams[i].reportType}/${sellerSku}`),
-        data[j],
+        mergedData,
         {
           merge: true,
         }

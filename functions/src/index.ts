@@ -37,18 +37,18 @@ exports.taskRunner = functions
     const jobs: Promise<any>[] = [];
 
     const workers: Workers = {
-      helloWorld: function () {
+      helloWorld() {
         return firebase.firestore().collection('logs').add({ hello: 'world' });
       },
-      requestReportTask: function (options) {
+      requestReportTask(options) {
         console.log(options);
         return GetReportRequest(options.uid, options.reportParams);
       },
-      requestReportListTask: function (options) {
+      requestReportListTask(options) {
         console.log(options);
         return GetReportList(options.uid, options.reportParams);
       },
-      getReportTask: function (options) {
+      getReportTask(options) {
         console.log(options);
         return GetReport(options.uid, options.reportParams);
       },
@@ -65,7 +65,7 @@ exports.taskRunner = functions
     });
   });
 
-//Look for a better way to write this promise stack
+// Look for a better way to write this promise stack
 exports.requestReportScheduler = functions.pubsub
   .schedule('0 0 * * *')
   .onRun((context) => {

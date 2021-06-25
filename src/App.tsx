@@ -17,6 +17,7 @@ import Loader from './components/UI/Loader';
 import firebase from './firebase/config';
 import { getUserById, setLoading, setNeedVerification } from './store/actions/authActions';
 import { RootState } from './store';
+import AmazonInventory from './components/pages/AmazonInventory';
 
 const App: FC = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ const App: FC = () => {
         <PublicRoute path="/forgot-password" component={ForgotPassword} exact />
         <PrivateRoute path="/dashboard" component={Dashboard} exact />
         <PrivateRoute path="/settings" component={Settings} exact />
+        <PrivateRoute path="/amazon-inventory" component={AmazonInventory} exact />
       </Switch>
     </BrowserRouter>
   );

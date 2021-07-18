@@ -15,22 +15,27 @@ import PrivateRoute from './components/auth/PrivateRoute';
 import PublicRoute from './components/auth/PublicRoute';
 import Loader from './components/UI/Loader';
 import firebase from './firebase/config';
-import { getUserById, setLoading, setNeedVerification } from './store/actions/authActions';
+import {
+  getUserById,
+  setLoading,
+  setNeedVerification,
+} from './store/actions/authActions';
 import { RootState } from './store';
 import AmazonInventory from './components/pages/AmazonInventory';
+import ImportData from './components/pages/ImportData';
 
 const App: FC = () => {
   const dispatch = useDispatch();
   const { loading } = useSelector((state: RootState) => state.auth);
-  
+
   // Check if user exists
   useEffect(() => {
     dispatch(setLoading(true));
     const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-      if(user) {
+      if (user) {
         dispatch(setLoading(true));
         await dispatch(getUserById(user.uid));
-        if(!user.emailVerified) {
+        if (!user.emailVerified) {
           dispatch(setNeedVerification());
         }
       }
@@ -42,12 +47,16 @@ const App: FC = () => {
     };
   }, [dispatch]);
 
-  if(loading) {
+  if (loading) {
     return <Loader />;
   }
 
   return (
     <BrowserRouter>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      />
       <Header />
       <Switch>
         <PublicRoute path="/" component={Homepage} exact />
@@ -56,10 +65,15 @@ const App: FC = () => {
         <PublicRoute path="/forgot-password" component={ForgotPassword} exact />
         <PrivateRoute path="/dashboard" component={Dashboard} exact />
         <PrivateRoute path="/settings" component={Settings} exact />
-        <PrivateRoute path="/amazon-inventory" component={AmazonInventory} exact />
+        <PrivateRoute
+          path="/amazon-inventory"
+          component={AmazonInventory}
+          exact
+        />
+        <PrivateRoute path="/import-data" component={ImportData} exact />
       </Switch>
     </BrowserRouter>
   );
-}
+};
 
 export default App;

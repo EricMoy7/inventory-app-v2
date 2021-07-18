@@ -1,12 +1,16 @@
 import React from "react";
+import firebase from '../../firebase/config';
+import { User } from "../../store/types";
 
-export function renderTableStyle(colList: any) {
+const db = firebase.firestore()
+
+export function renderTableStyle(colList: any, user: User | null) {
   colList.map((column: { title: string; }, idx: string | number) => {
     if (column.title === "Image") {
       colList[idx] = {
         ...column,
-        render: (rowData: { [x: string]: string | undefined; ASIN: any; imageUrl: string | undefined; imageWidth: any; imageHeight: any; }) => (
-          <a href={`https://www.amazon.com/dp/${rowData.ASIN}`} target="_blank">
+        render: (rowData: { [x: string]: string | undefined; asin: any; imageUrl: string | undefined; imageWidth: any; imageHeight: any; }) => (
+          <a href={`https://www.amazon.com/dp/${rowData.asin}`} target="_blank">
             <img
               src={rowData.imageUrl}
               style={{
@@ -30,5 +34,7 @@ export function renderTableStyle(colList: any) {
       };
     }
   });
+
+
   return colList;
 }

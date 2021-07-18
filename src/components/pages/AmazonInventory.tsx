@@ -47,7 +47,7 @@ const AmazonInventory: FC = () => {
     const unsubscribe = headers.onSnapshot((snapshot) => {
       let colList = snapshot?.data()?.columns;
 
-      setColumns(renderTableStyle(colList));
+      setColumns(renderTableStyle(colList, user));
     });
     return () => unsubscribe;
   }
@@ -59,10 +59,67 @@ const AmazonInventory: FC = () => {
         {needVerification && <Message type="success" msg="Please verify your email address." />}
         <h1 className="is-size-1">Welcome {user?.firstName}</h1>
         <MaterialTable
+          options={{
+            columnsButton: true,
+            headerStyle: {
+              position: "sticky",
+              top: 0,
+              fontSize: 12,
+              whiteSpace: "nowrap",
+              width: 30,
+            },
+            padding: "dense",
+            filtering: true,
+            grouping: false,
+            exportButton: true,
+            search: true,
+            maxBodyHeight: 700,
+            pageSize: 50,
+            pageSizeOptions: [10, 25, 50, 75, 100],
+          }}
+          isLoading={isLoading}
           columns={columns}
           data={rows}
           title="Demo Title"
-        />
+          editable={{
+            onBulkUpdate: (changes) =>
+              new Promise((resolve, reject) => {
+                setTimeout(() => {
+                  resolve('Done');
+                }, 1000);
+              }),
+            onRowAddCancelled: (rowData) => console.log("Row adding cancelled"),
+            onRowUpdateCancelled: (rowData) =>
+              console.log("Row editing cancelled"),
+            onRowAdd: (newData) =>
+              new Promise((resolve, reject) => {
+                setTimeout(() => {
+                  db.doc(`users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_/${newData.sku}`).set(newData, {
+                    merge: true,
+                  });
+                  resolve('Done');
+                }, 1000);
+              }),
+            onRowUpdate: (newData, oldData) =>
+              new Promise((resolve, reject) => {
+                setTimeout(() => {
+                  db.doc(`users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_/${oldData.sku}`).update(
+                    newData
+                  );
+  
+                  resolve('Done');
+                }, 1000);
+              }),
+            onRowDelete: (oldData) =>
+              new Promise((resolve, reject) => {
+                setTimeout(() => {
+                  db.doc(`users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_/${oldData.sku}`).delete();
+  
+                  resolve('Done');
+                }, 1000);
+              }),
+          }}
+          />
       </div>
     </section>
   );

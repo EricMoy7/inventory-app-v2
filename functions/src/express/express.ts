@@ -109,4 +109,16 @@ app.get(
 //   }
 // );
 
+//CSV Uploader Function
+app.post(
+  '/upload/inventory',
+  async (req: express.Request, res: express.Response): Promise<void> => {
+    try {
+      res.sendStatus(200);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+);
+
 export default app;

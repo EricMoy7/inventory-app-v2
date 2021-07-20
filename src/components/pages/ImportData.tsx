@@ -1,8 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import MaterialTable from 'material-table';
 
-import Message from '../UI/Message';
 import { setSuccess } from '../../store/actions/authActions';
 import { RootState } from '../../store';
 
@@ -10,6 +8,12 @@ import firebase from '../../firebase/config';
 
 import FileInput from '../UI/FileInput';
 import Button from '../UI/Button';
+
+import Papa from 'papaparse';
+
+import ImportInventoryForm from '../UI/ImportData/ImportInventoryForm';
+import { ImportDataHeaders, SET_IMPORT_HEADERS } from '../../store/types';
+import { initHeaders } from '../../store/actions/importActions';
 
 const db = firebase.firestore();
 
@@ -19,12 +23,11 @@ const ImportData: FC = () => {
   );
   const dispatch = useDispatch();
 
-  const [rows, setRows] = useState<Array<any>>([]);
-  const [columns, setColumns] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const [selectedFile, setSelectedFile] = useState<File>();
   const [isFileSelected, setIsFileSelected] = useState(false);
+  const headers = useSelector(
+    (state: { import: {} }) => state.import
+  ) as ImportDataHeaders;
 
   //TODO: Move data importer to its own component
   //TODO: Handle multiple files at once
@@ -36,7 +39,27 @@ const ImportData: FC = () => {
     }
   };
 
-  const handleSubmission = () => {};
+  const handleSubmission = async () => {
+    const config = {
+      delimiter: ',',
+      header: false,
+      //TODO: Type results to array
+      complete: (results: any) => {
+        console.log('Upload Complete');
+
+        const prevState = initHeaders(results.data[0], headers);
+
+        dispatch({
+          type: SET_IMPORT_HEADERS,
+          payload: prevState,
+        });
+      },
+    };
+
+    if (selectedFile !== undefined) {
+      Papa.parse(selectedFile, config);
+    }
+  };
 
   useEffect(() => {
     if (success) {
@@ -48,7 +71,8 @@ const ImportData: FC = () => {
   return (
     <div>
       <FileInput label="File Input" onChange={changeHandler}></FileInput>
-      <Button text="Upload" />
+      <Button text="Upload" onClick={handleSubmission} />
+      <ImportInventoryForm />
     </div>
   );
 };

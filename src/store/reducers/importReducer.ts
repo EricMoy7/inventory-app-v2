@@ -16,7 +16,7 @@ export default (state = initialState, action: ImportAction) => {
       const payload = action.payload;
       return {
         ...state,
-        payload,
+        ...payload,
       };
     default:
       return state;

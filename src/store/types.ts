@@ -43,6 +43,7 @@ export interface ImportDataHeaders {
   condition: string;
   msku: string;
   headers: [];
+  [key: string]: string | [];
 }
 
 // Actions

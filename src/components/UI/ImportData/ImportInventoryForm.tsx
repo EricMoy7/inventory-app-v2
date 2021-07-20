@@ -30,11 +30,20 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
       position: 'absolute',
-      width: 600,
+      width: '600px',
+      height: '800px',
       backgroundColor: theme.palette.background.paper,
       border: '2px solid #000',
       boxShadow: theme.shadows[5],
       padding: theme.spacing(2, 4, 3),
+      display: 'block',
+    },
+    formControl: {
+      margin: theme.spacing(1),
+      width: '100%',
+    },
+    selectEmpty: {
+      marginTop: theme.spacing(2),
     },
   })
 );
@@ -74,22 +83,29 @@ export default function ImportInventoryForm() {
 
   const body = (
     <div style={modalStyle} className={classes.paper}>
-      <FormControl>
-        <InputLabel id="asin-label">ASIN</InputLabel>
-        <Select
-          labelId="asin-label"
-          name="asin"
-          id="asin"
-          value={state.asin}
-          onChange={handleChange}
-        >
-          {globalState.headers.map((item) => (
-            <MenuItem key={item} value={item}>
-              {item}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      {Object.keys(globalState).map((key) => {
+        if (key !== 'headers') {
+          return (
+            <FormControl className={classes.formControl}>
+              <InputLabel htmlFor={key}>
+                {key.charAt(0).toUpperCase() + key.slice(1)}
+              </InputLabel>
+              <Select
+                name={key}
+                id={key}
+                value={state[key]}
+                onChange={handleChange}
+              >
+                {globalState.headers.map((item) => (
+                  <MenuItem key={item} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          );
+        }
+      })}
     </div>
   );
 
@@ -98,12 +114,7 @@ export default function ImportInventoryForm() {
       <button type="button" onClick={handleOpen}>
         Open Modal
       </button>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      >
+      <Modal open={open} onClose={handleClose}>
         {body}
       </Modal>
     </div>

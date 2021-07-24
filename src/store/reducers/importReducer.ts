@@ -8,6 +8,7 @@ const initialState: ImportDataHeaders = {
   condition: 'None Found',
   msku: 'None Found',
   headers: [],
+  hasUploaded: false,
 };
 
 export default (state = initialState, action: ImportAction) => {

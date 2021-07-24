@@ -43,7 +43,9 @@ export interface ImportDataHeaders {
   condition: string;
   msku: string;
   headers: [];
-  [key: string]: string | [];
+  hasUploaded: Boolean;
+  [key: string]: string | Array<any> | Boolean;
+  //TODO: Fix any on array index sig
 }
 
 // Actions

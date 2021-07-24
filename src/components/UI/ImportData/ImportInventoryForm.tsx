@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
+import Button from '@material-ui/core/Button';
 
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -10,10 +11,6 @@ import Select from '@material-ui/core/Select';
 
 import { useSelector } from 'react-redux';
 import { ImportDataHeaders } from '../../../store/types';
-
-function rand() {
-  return Math.round(Math.random() * 20) - 10;
-}
 
 function getModalStyle() {
   const top = 50;
@@ -49,16 +46,26 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function ImportInventoryForm() {
-  const classes = useStyles();
   // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
+  const [styleState, setStyleState] = React.useState({ display: 'None' });
+
+  const classes = useStyles();
 
   const globalState = useSelector(
     (state: { import: {} }) => state.import
   ) as ImportDataHeaders;
 
   const [state, setState] = React.useState(globalState);
+
+  React.useEffect(() => {
+    console.log(globalState.hasUploaded);
+    if (globalState.hasUploaded === true) {
+      setStyleState({ display: 'Block' });
+      setOpen(true);
+    }
+  }, [globalState]);
 
   const handleChange = (event: any) => {
     let value = event.target.value;
@@ -74,7 +81,6 @@ export default function ImportInventoryForm() {
 
   const handleOpen = () => {
     setOpen(true);
-    console.log(globalState);
   };
 
   const handleClose = () => {
@@ -111,9 +117,14 @@ export default function ImportInventoryForm() {
 
   return (
     <div>
-      <button type="button" onClick={handleOpen}>
+      <Button
+        type="button"
+        onClick={handleOpen}
+        style={{ display: styleState.display }}
+      >
         Open Modal
-      </button>
+      </Button>
+
       <Modal open={open} onClose={handleClose}>
         {body}
       </Modal>

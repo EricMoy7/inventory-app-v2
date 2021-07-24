@@ -22,7 +22,7 @@ import {
 } from './store/actions/authActions';
 import { RootState } from './store';
 import AmazonInventory from './components/pages/AmazonInventory';
-import ImportData from './components/pages/ImportData';
+import ImportDataPage from './components/pages/ImportDataPage';
 
 const App: FC = () => {
   const dispatch = useDispatch();
@@ -70,7 +70,7 @@ const App: FC = () => {
           component={AmazonInventory}
           exact
         />
-        <PrivateRoute path="/import-data" component={ImportData} exact />
+        <PrivateRoute path="/import-data" component={ImportDataPage} exact />
       </Switch>
     </BrowserRouter>
   );

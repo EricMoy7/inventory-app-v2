@@ -3,11 +3,13 @@ import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 
 import authReducer from './reducers/authReducer';
-import importReducer from './reducers/importReducer';
+import importHeaderReducer from './reducers/importHeaderReducer';
+import importDataReducer from './reducers/importDataReducer';
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  import: importReducer,
+  import: importHeaderReducer,
+  importData: importDataReducer,
 });
 
 const store = createStore(

@@ -3,19 +3,19 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { RootState } from '../../../store';
 
-import firebase from '../../../firebase/config';
-
 import Papa from 'papaparse';
 
-import { ImportDataHeaders, SET_IMPORT_HEADERS } from '../../../store/types';
+import {
+  ImportDataHeaders,
+  SET_IMPORT_HEADERS,
+  ParentCompProps,
+  SET_IMPORT_DATA,
+} from '../../../store/types';
 import { initHeaders } from '../../../store/actions/importActions';
 
 import { useDropzone } from 'react-dropzone';
 
 import { makeStyles } from '@material-ui/core/styles';
-import ImportInventoryForm from './ImportInventoryForm';
-
-const db = firebase.firestore();
 
 const useStyles = makeStyles({
   dropzone: {
@@ -40,15 +40,9 @@ const useStyles = makeStyles({
   },
 });
 
-interface ParentCompProps {
-  childComp?: React.ReactNode;
-}
-
 const ImportData: FC<ParentCompProps> = (props) => {
   const { childComp } = props;
-  const { user, needVerification, success } = useSelector(
-    (state: RootState) => state.auth
-  );
+
   const dispatch = useDispatch();
 
   const classes = useStyles();
@@ -78,13 +72,14 @@ const ImportData: FC<ParentCompProps> = (props) => {
       header: false,
       //TODO: Type results to array
       complete: (results: any) => {
-        console.log('Upload Complete');
-
         const prevState = initHeaders(results.data[0], headers);
-
         dispatch({
           type: SET_IMPORT_HEADERS,
           payload: { ...prevState, hasUploaded: true },
+        });
+        dispatch({
+          type: SET_IMPORT_DATA,
+          payload: results.data,
         });
       },
     };

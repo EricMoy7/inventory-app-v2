@@ -1,6 +1,3 @@
-import { ImportDataHeaders, SET_IMPORT_HEADERS, ImportAction } from '../types';
-import { RootState } from '..';
-
 //Establish Initial Headers
 export const initHeaders = (data: [string], prevState: any): any => {
   for (let header of data) {

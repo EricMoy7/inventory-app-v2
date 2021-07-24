@@ -7,6 +7,7 @@ export const SET_SUCCESS = 'SET_SUCCESS';
 export const SET_MWS = 'SET_MWS';
 
 export const SET_IMPORT_HEADERS = 'SET_IMPORT_HEADERS';
+export const SET_IMPORT_DATA = 'SET_IMPORT_DATA';
 
 export interface User {
   firstName: string;
@@ -48,10 +49,23 @@ export interface ImportDataHeaders {
   //TODO: Fix any on array index sig
 }
 
+export interface ImportData {
+  [index: number]: string[];
+}
+
+export interface ParentCompProps {
+  childComp?: React.ReactNode;
+}
+
 // Actions
 interface SetImportHeadersAction {
   type: typeof SET_IMPORT_HEADERS;
   payload: ImportDataHeaders;
+}
+
+interface SetImportDataAction {
+  type: typeof SET_IMPORT_DATA;
+  payload: ImportData;
 }
 
 interface SetUserAction {
@@ -91,3 +105,5 @@ export type AuthAction =
   | SetSuccessAction;
 
 export type ImportAction = SetImportHeadersAction;
+
+export type ImportDataAction = SetImportDataAction;

@@ -48,6 +48,9 @@ const useStyles = makeStyles((theme: Theme) =>
     selectEmpty: {
       marginTop: theme.spacing(2),
     },
+    button: {
+      alignSelf: 'center',
+    },
   })
 );
 
@@ -73,7 +76,13 @@ const ImportInventoryForm: FC = () => {
   const headerState = globalState.import as ImportDataHeaders;
   const dataState = globalState.importData as ImportData;
 
-  const [state, setState] = React.useState(headerState);
+  //TODO: Define state in type file
+  const [state, setState] = React.useState<{ [key: string]: string }>(
+    headerState.headersObject
+  );
+
+  const [newHeaders, setNewHeaders] = React.useState<any[]>([]);
+  const [selectedNewHeader, setSelectedNewHeader] = React.useState<string>('');
 
   React.useEffect(() => {
     if (headerState.hasUploaded === true) {
@@ -89,7 +98,7 @@ const ImportInventoryForm: FC = () => {
     setState((prevalue: any) => {
       return {
         ...prevalue,
-        [name]: value,
+        [name.toLowerCase()]: value,
       };
     });
   };
@@ -102,16 +111,38 @@ const ImportInventoryForm: FC = () => {
     setOpen(false);
   };
 
-  const submitData = async () => {
-    console.log(dataState);
+  const headerInput = (key: string) => {
+    return (
+      <FormControl className={classes.formControl}>
+        <InputLabel htmlFor={key}>
+          {key.charAt(0).toUpperCase() + key.slice(1)}
+        </InputLabel>
+        <Select name={key} id={key} value={state[key]} onChange={handleChange}>
+          {headerState.headers.map((item) => (
+            <MenuItem key={item} value={item}>
+              {item}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    );
+  };
 
+  const addHeaderInput = (event: any) => {
+    setNewHeaders((prevValue: any) => {
+      return [...prevValue, headerInput(event.target.value)];
+    });
+  };
+
+  const submitData = async () => {
+    console.log(state);
     const batch = db.batch();
     const headersArray = dataState[0];
     const indexMap: { [key: string]: number } = {};
 
     for (const key in state) {
       //Remove if statement after below is fixed
-      if (typeof state[key] === 'string') {
+      if (typeof state[key] === 'string' && state[key] !== 'None Found') {
         indexMap[key] =
           //Fix this type garbage
           //ImportDataHeaders indexer has headers:[] and hasUploaded:Boolean
@@ -123,11 +154,18 @@ const ImportInventoryForm: FC = () => {
 
     for (let i = 1; i < (dataState as []).length - 1; i++) {
       const productName = dataState[i][indexMap.msku];
-      const productDetails: { [key: string]: string } = {};
+      const productDetails: { [key: string]: string | number } = {};
       for (const key in indexMap) {
-        productDetails[key] = dataState[i][indexMap[key]];
+        if (key === 'cost' || key === 'listPrice') {
+          productDetails[key] = parseFloat(dataState[i][indexMap[key]]);
+        } else {
+          if (dataState[i][indexMap[key]] !== undefined) {
+            productDetails[key] = dataState[i][indexMap[key]];
+          } else {
+            productDetails[key] = 'Not Found';
+          }
+        }
       }
-      console.log(productDetails);
       const path = db.doc(`users/${user?.id}/inventory/${productName}`);
       batch.set(path, productDetails, { merge: true });
     }
@@ -137,8 +175,8 @@ const ImportInventoryForm: FC = () => {
   const body = (
     <div style={modalStyle} className={classes.paper}>
       <form>
-        {Object.keys(headerState).map((key) => {
-          if (key !== 'headers') {
+        {Object.keys(headerState.headersObject).map((key) => {
+          if (state[key] !== 'None Found') {
             return (
               <div>
                 <FormControl className={classes.formControl}>
@@ -162,7 +200,22 @@ const ImportInventoryForm: FC = () => {
             );
           }
         })}
-        <Button onClick={submitData}>Upload to Database</Button>
+        {newHeaders}
+        <Select
+          name="addOn"
+          id="addOn"
+          value={selectedNewHeader}
+          onChange={addHeaderInput}
+        >
+          {headerState.headers.map((item) => (
+            <MenuItem key={item} value={item}>
+              {item}
+            </MenuItem>
+          ))}
+        </Select>
+        <Button className={classes.button} onClick={submitData}>
+          Upload to Database
+        </Button>
       </form>
     </div>
   );

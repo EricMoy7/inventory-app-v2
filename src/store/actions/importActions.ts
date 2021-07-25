@@ -2,31 +2,30 @@
 export const initHeaders = (data: [string], prevState: any): any => {
   for (let header of data) {
     if (header.toUpperCase() === 'ASIN') {
-      prevState.asin = header;
+      prevState.headersObject.asin = header;
     }
 
     if (header.toUpperCase() === 'COST') {
-      prevState.cost = header;
+      prevState.headersObject.cost = header;
     }
 
     if (
       header.toUpperCase() === 'LISTPRICE' ||
       header.toUpperCase() === 'LIST PRICE'
     ) {
-      prevState.listPrice = header;
-      console.log(header);
+      prevState.headersObject.listPrice = header;
     }
 
     if (header.toUpperCase() === 'SUPPLIER') {
-      prevState.supplier = header;
+      prevState.headersObject.supplier = header;
     }
 
     if (header.toUpperCase() === 'CONDITION') {
-      prevState.condition = header;
+      prevState.headersObject.condition = header;
     }
 
     if (header.toUpperCase() === 'MSKU') {
-      prevState.msku = header;
+      prevState.headersObject.msku = header;
     }
   }
   prevState.headers = data;

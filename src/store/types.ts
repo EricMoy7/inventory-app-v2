@@ -37,15 +37,17 @@ export interface SignInData {
 }
 
 export interface ImportDataHeaders {
-  asin: string;
-  cost: string;
-  listPrice: string;
-  supplier: string;
-  condition: string;
-  msku: string;
+  headersObject: {
+    asin?: string;
+    cost?: string;
+    listPrice?: string;
+    supplier?: string;
+    condition?: string;
+    msku: string;
+  };
   headers: [];
   hasUploaded: Boolean;
-  [key: string]: string | Array<any> | Boolean;
+  [key: string]: string | Array<any> | Boolean | {};
   //TODO: Fix any on array index sig
 }
 

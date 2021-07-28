@@ -91,15 +91,30 @@ const ImportInventoryForm: FC = () => {
     }
   }, [headerState]);
 
+  function camelCase(str: string) {
+    return str
+      .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word: string, index: number) {
+        return index == 0 ? word.toLowerCase() : word.toUpperCase();
+      })
+      .replace(/\s+/g, '');
+  }
+
   const handleChange = (event: any) => {
     let value = event.target.value;
     let name = event.target.name;
 
     setState((prevalue: any) => {
-      return {
-        ...prevalue,
-        [name.toLowerCase()]: value,
-      };
+      if (name.indexOf(' ') >= 0) {
+        return {
+          ...prevalue,
+          [camelCase(name)]: value,
+        };
+      } else {
+        return {
+          ...prevalue,
+          [name.toLowerCase()]: value,
+        };
+      }
     });
   };
 
@@ -135,7 +150,6 @@ const ImportInventoryForm: FC = () => {
   };
 
   const submitData = async () => {
-    console.log(state);
     const batch = db.batch();
     const headersArray = dataState[0];
     const indexMap: { [key: string]: number } = {};

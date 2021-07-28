@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { ChangeEvent, FC, SetStateAction, useEffect } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Button from '@material-ui/core/Button';
@@ -15,6 +15,8 @@ import { RootState } from '../../../store';
 import { ImportDataHeaders } from '../../../store/types';
 
 import firebase from '../../../firebase/config';
+import { Autocomplete } from '@material-ui/lab';
+import { TextField } from '@material-ui/core';
 
 const db = firebase.firestore();
 
@@ -50,6 +52,15 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     button: {
       alignSelf: 'center',
+      display: 'block',
+    },
+    footerDiv: {
+      position: 'absolute',
+      bottom: 0,
+      width: '100%',
+    },
+    addOnSelect: {
+      minWidth: '200px',
     },
   })
 );
@@ -82,7 +93,10 @@ const ImportInventoryForm: FC = () => {
   );
 
   const [newHeaders, setNewHeaders] = React.useState<any[]>([]);
-  const [selectedNewHeader, setSelectedNewHeader] = React.useState<string>('');
+  const [selectedHeaderInput, setSelectedHeaderInput] =
+    React.useState<string>(' ');
+  const [selectedHeaderValue, setSelectedHeaderValue] =
+    React.useState<string>(' ');
 
   React.useEffect(() => {
     if (headerState.hasUploaded === true) {
@@ -119,6 +133,7 @@ const ImportInventoryForm: FC = () => {
   };
 
   const handleOpen = () => {
+    console.log(state);
     setOpen(true);
   };
 
@@ -143,9 +158,9 @@ const ImportInventoryForm: FC = () => {
     );
   };
 
-  const addHeaderInput = (event: any) => {
+  const addHeaderInput = (headerName: string) => {
     setNewHeaders((prevValue: any) => {
-      return [...prevValue, headerInput(event.target.value)];
+      return [...prevValue, headerInput(headerName)];
     });
   };
 
@@ -214,22 +229,75 @@ const ImportInventoryForm: FC = () => {
             );
           }
         })}
+
         {newHeaders}
-        <Select
-          name="addOn"
-          id="addOn"
-          value={selectedNewHeader}
-          onChange={addHeaderInput}
-        >
-          {headerState.headers.map((item) => (
-            <MenuItem key={item} value={item}>
-              {item}
-            </MenuItem>
-          ))}
-        </Select>
-        <Button className={classes.button} onClick={submitData}>
-          Upload to Database
-        </Button>
+        <div className={classes.footerDiv}>
+          <InputLabel htmlFor="addOn">Add new header</InputLabel>
+          <Autocomplete
+            freeSolo
+            id="addOn"
+            options={headerState.headers
+              .filter((item: string) => {
+                if (Object.values(state).indexOf(item) >= 0) {
+                  return false; //skipping
+                } else {
+                  return true;
+                }
+              })
+              .map((item: string) => item)}
+            className={classes.addOnSelect}
+            onChange={(
+              event: ChangeEvent<{}>,
+              newValue: string | null | void
+            ) => {
+              if (newValue) {
+                addHeaderInput(newValue as string);
+              } else {
+                setSelectedHeaderInput(' ');
+              }
+            }}
+            onInputChange={(event, newInputValue) => {
+              // let name = '';
+              // if (newInputValue.indexOf(' ') >= 0) {
+              //   name = camelCase(newInputValue);
+              // } else {
+              //   name = newInputValue.toLowerCase();
+              // }
+
+              // Object.keys(state).forEach((key) => {
+              //   if (key === name) {
+              //     setSelectedHeaderInput(' ');
+              //     console.log('This header has already been selected');
+              //   }
+              // });
+
+              setSelectedHeaderInput(newInputValue);
+            }}
+            inputValue={selectedHeaderInput}
+            value={selectedHeaderValue}
+            renderInput={(params) => {
+              return (
+                <TextField {...params} margin="normal" variant="outlined" />
+              );
+            }}
+          />
+          {/* <Select
+            name="addOn"
+            id="addOn"
+            value={selectedNewHeader}
+            onChange={addHeaderInput}
+            className={classes.addOnSelect}
+          >
+            {headerState.headers.map((item) => (
+              <MenuItem key={item} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </Select> */}
+          <Button className={classes.button} onClick={submitData}>
+            Upload to Database
+          </Button>
+        </div>
       </form>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { ChangeEvent, FC, SetStateAction, useEffect } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Button from '@material-ui/core/Button';
+import Container from '@material-ui/core/Container';
 
 import { ImportData } from '../../../store/types';
 
@@ -54,14 +55,19 @@ const useStyles = makeStyles((theme: Theme) =>
       alignSelf: 'center',
       display: 'block',
     },
+    modalButton: {
+      aliagnSelf: 'center',
+    },
     footerDiv: {
       position: 'absolute',
       bottom: 0,
-      width: '100%',
+      width: '90%',
     },
     addOnSelect: {
       minWidth: '200px',
+      maxWidth: '100%',
     },
+    inputContainer: { display: 'flex', flexDirection: 'column' },
   })
 );
 
@@ -234,6 +240,7 @@ const ImportInventoryForm: FC = () => {
         <div className={classes.footerDiv}>
           <InputLabel htmlFor="addOn">Add new header</InputLabel>
           <Autocomplete
+            className={classes.addOnSelect}
             freeSolo
             id="addOn"
             options={headerState.headers
@@ -245,7 +252,6 @@ const ImportInventoryForm: FC = () => {
                 }
               })
               .map((item: string) => item)}
-            className={classes.addOnSelect}
             onChange={(
               event: ChangeEvent<{}>,
               newValue: string | null | void
@@ -257,20 +263,6 @@ const ImportInventoryForm: FC = () => {
               }
             }}
             onInputChange={(event, newInputValue) => {
-              // let name = '';
-              // if (newInputValue.indexOf(' ') >= 0) {
-              //   name = camelCase(newInputValue);
-              // } else {
-              //   name = newInputValue.toLowerCase();
-              // }
-
-              // Object.keys(state).forEach((key) => {
-              //   if (key === name) {
-              //     setSelectedHeaderInput(' ');
-              //     console.log('This header has already been selected');
-              //   }
-              // });
-
               setSelectedHeaderInput(newInputValue);
             }}
             inputValue={selectedHeaderInput}
@@ -281,19 +273,6 @@ const ImportInventoryForm: FC = () => {
               );
             }}
           />
-          {/* <Select
-            name="addOn"
-            id="addOn"
-            value={selectedNewHeader}
-            onChange={addHeaderInput}
-            className={classes.addOnSelect}
-          >
-            {headerState.headers.map((item) => (
-              <MenuItem key={item} value={item}>
-                {item}
-              </MenuItem>
-            ))}
-          </Select> */}
           <Button className={classes.button} onClick={submitData}>
             Upload to Database
           </Button>
@@ -304,17 +283,20 @@ const ImportInventoryForm: FC = () => {
 
   return (
     <div>
-      <Button
-        type="button"
-        onClick={handleOpen}
-        style={{ display: styleState.display }}
-      >
-        Open Modal
-      </Button>
+      <Container className={classes.inputContainer}>
+        <Button
+          type="button"
+          onClick={handleOpen}
+          style={{ display: styleState.display }}
+          className={classes.modalButton}
+        >
+          Open Modal
+        </Button>
 
-      <Modal open={open} onClose={handleClose}>
-        {body}
-      </Modal>
+        <Modal open={open} onClose={handleClose}>
+          {body}
+        </Modal>
+      </Container>
     </div>
   );
 };

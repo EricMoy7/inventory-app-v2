@@ -119,6 +119,8 @@ const GetReport = async (
 
     //Check for which SKU key
     //TODO: Make this into a switch statement
+    //TODO: What if they don't exist throw this into its own function
+    // and make a try catch
     let skuKey: string = '';
     if (data[0]['Merchant SKU']) {
       skuKey = 'Merchant SKU';
@@ -128,6 +130,15 @@ const GetReport = async (
       skuKey = 'sku';
     } else {
       console.log('SKU KEY NOT FOUND');
+    }
+
+    let asinKey: string = '';
+    if (data[0]['ASIN']) {
+      asinKey = 'ASIN';
+    } else if (data[0]['asin']) {
+      asinKey = 'asin';
+    } else {
+      console.log('ASIN KEY NOT FOUND');
     }
 
     const snap = await firebase
@@ -143,7 +154,7 @@ const GetReport = async (
 
     for (let j = 0; j < data.length; j++) {
       const sellerSku = data[j][skuKey];
-      const productData = await getProductData(data[j]['asin'], amazonCred);
+      const productData = await getProductData(data[j][asinKey], amazonCred);
       const mergedData = { ...productData, ...data[j] };
       batch.set(
         firebase

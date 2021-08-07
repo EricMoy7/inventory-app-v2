@@ -94,9 +94,9 @@ const ImportInventoryForm: FC = () => {
   const dataState = globalState.importData as ImportData;
 
   //TODO: Define state in type file
-  const [state, setState] = React.useState<{ [key: string]: string }>(
-    headerState.headersObject
-  );
+  const [state, setState] = React.useState<{
+    [key: string]: string | undefined | null;
+  }>(headerState.headersObject);
 
   const [newHeaders, setNewHeaders] = React.useState<any[]>([]);
   const [selectedHeaderInput, setSelectedHeaderInput] =
@@ -187,9 +187,12 @@ const ImportInventoryForm: FC = () => {
       }
     }
 
+    const productDetails: { [key: string]: string | number | null } = {
+      ...headerState.headersObject,
+    };
+
     for (let i = 1; i < (dataState as []).length - 1; i++) {
       const productName = dataState[i][indexMap.msku];
-      const productDetails: { [key: string]: string | number } = {};
       for (const key in indexMap) {
         if (key === 'cost' || key === 'listPrice') {
           productDetails[key] = parseFloat(dataState[i][indexMap[key]]);
@@ -197,7 +200,7 @@ const ImportInventoryForm: FC = () => {
           if (dataState[i][indexMap[key]] !== undefined) {
             productDetails[key] = dataState[i][indexMap[key]];
           } else {
-            productDetails[key] = 'Not Found';
+            productDetails[key] = null;
           }
         }
       }

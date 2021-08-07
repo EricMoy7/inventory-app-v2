@@ -38,12 +38,17 @@ export interface SignInData {
 
 export interface ImportDataHeaders {
   headersObject: {
-    asin?: string;
-    cost?: string;
-    listPrice?: string;
-    supplier?: string;
-    condition?: string;
+    asin?: string | null;
+    cost?: string | null;
+    listPrice?: string | null;
+    supplier?: string | null;
+    condition?: string | null;
     msku: string;
+    imageUrl?: string | null;
+    imageHeight?: string | null;
+    imageWidth?: string | null;
+    //fix
+    [key: string]: any;
   };
   headers: [];
   hasUploaded: Boolean;

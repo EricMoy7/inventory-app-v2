@@ -19,16 +19,18 @@ const getProductData = async (ASIN: string, amazonCred: UserCredentials) => {
       imageUrl:
         productData.Products.Product.AttributeSets.ItemAttributes.SmallImage
           .URL,
-      imageHeight:
+      imageHeight: parseInt(
         productData.Products.Product.AttributeSets.ItemAttributes.SmallImage
-          .Height.Value,
-      imageWidth:
+          .Height.Value
+      ),
+      imageWidth: parseInt(
         productData.Products.Product.AttributeSets.ItemAttributes.SmallImage
-          .Width.Value,
+          .Width.Value
+      ),
     };
     return imageData;
   } catch (err) {
-    console.log('Product not found');
+    console.log(err);
     return { error: 'Details not found' };
   }
 };

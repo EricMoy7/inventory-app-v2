@@ -2,12 +2,15 @@ import { ImportDataHeaders, SET_IMPORT_HEADERS, ImportAction } from '../types';
 
 const initialState: ImportDataHeaders = {
   headersObject: {
-    asin: 'None Found',
-    cost: 'None Found',
-    listPrice: 'None Found',
-    supplier: 'None Found',
-    condition: 'None Found',
+    asin: null,
+    cost: null,
+    listPrice: null,
+    supplier: null,
+    condition: null,
     msku: 'None Found',
+    imageUrl: null,
+    imageHeight: null,
+    imageWidth: null,
   },
   headers: [],
   hasUploaded: false,

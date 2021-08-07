@@ -154,6 +154,7 @@ const GetReport = async (
 
     for (let j = 0; j < data.length; j++) {
       const sellerSku = data[j][skuKey];
+      //Attach URL data to outbound JSON package
       const productData = await getProductData(data[j][asinKey], amazonCred);
       const mergedData = { ...productData, ...data[j] };
       batch.set(
@@ -167,7 +168,7 @@ const GetReport = async (
       );
     }
   }
-  batch.commit();
+  await batch.commit();
 };
 
 export { GetReportRequest, GetReportList, GetReport };

@@ -5,6 +5,10 @@ import {
   GetReportList,
   GetReportRequest,
 } from '../amazon/functions/getReport';
+import {
+  emptyInventoryImageUpdate,
+  forceInventoryImageUpdate,
+} from '../amazon/functions/updateInventoryImages';
 
 import express = require('express');
 import cors = require('cors');
@@ -109,15 +113,31 @@ app.get(
 //   }
 // );
 
-//CSV Uploader Function
-app.post(
-  '/upload/inventory',
+app.get(
+  '/updateInventory/empty',
   async (req: express.Request, res: express.Response): Promise<void> => {
+    const { uid } = req.query as Data;
+    console.log(uid);
     try {
-      res.sendStatus(200);
+      await emptyInventoryImageUpdate(uid);
     } catch (err) {
       console.log(err);
     }
+    res.sendStatus(200);
+  }
+);
+
+app.get(
+  '/updateInventory/force',
+  async (req: express.Request, res: express.Response): Promise<void> => {
+    const { uid } = req.query as Data;
+    console.log(uid);
+    try {
+      await forceInventoryImageUpdate(uid);
+    } catch (err) {
+      console.log(err);
+    }
+    res.sendStatus(200);
   }
 );
 

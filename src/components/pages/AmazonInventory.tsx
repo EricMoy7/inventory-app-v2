@@ -6,14 +6,16 @@ import Message from '../UI/Message';
 import { setSuccess } from '../../store/actions/authActions';
 import { RootState } from '../../store';
 
-import firebase from '../../firebase/config'
+import firebase from '../../firebase/config';
 
 import { renderTableStyle } from '../utilities/renderTableStyle';
 
 const db = firebase.firestore();
 
 const AmazonInventory: FC = () => {
-  const { user, needVerification, success } = useSelector((state: RootState) => state.auth);
+  const { user, needVerification, success } = useSelector(
+    (state: RootState) => state.auth
+  );
   const dispatch = useDispatch();
 
   const [rows, setRows] = useState<Array<any>>([]);
@@ -24,51 +26,63 @@ const AmazonInventory: FC = () => {
     if (success) {
       dispatch(setSuccess(''));
     }
-    console.log(user)
+    console.log(user);
   }, [success, dispatch]);
 
   useEffect(() => {
-    const inventory = db.collection(`users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_`);
+    const inventory = db.collection(
+      `users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_`
+    );
     const headers = db.doc(`users/${user?.id}/headers/amazonReport`);
-    getHeaderData(headers);
-    getInventoryData(inventory);
+    try {
+      getHeaderData(headers);
+      getInventoryData(inventory);
+    } catch (err) {
+      console.log(err);
+    }
     setIsLoading(false);
   }, []);
 
-  function getInventoryData(inventory: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>) {
-    const unsubscribe = inventory.onSnapshot((snapshot: { docs: any[]; }) => {
-      const data = snapshot.docs.map((doc: { data: () => any; }) => doc.data());
+  function getInventoryData(
+    inventory: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>
+  ) {
+    const unsubscribe = inventory.onSnapshot((snapshot: { docs: any[] }) => {
+      const data = snapshot.docs.map((doc: { data: () => any }) => doc.data());
       setRows(data);
     });
     return () => unsubscribe();
   }
 
-  function getHeaderData(headers: firebase.firestore.DocumentReference<firebase.firestore.DocumentData>) {
+  function getHeaderData(
+    headers: firebase.firestore.DocumentReference<firebase.firestore.DocumentData>
+  ) {
     const unsubscribe = headers.onSnapshot((snapshot) => {
       let colList = snapshot?.data()?.columns;
-
-      setColumns(renderTableStyle(colList, user));
+      if (colList) {
+        setColumns(renderTableStyle(colList, user));
+      }
     });
     return () => unsubscribe;
   }
 
-
-  return(
+  return (
     <section className="section">
-      <div className="container" style={{maxWidth: '90%'}}>
-        {needVerification && <Message type="success" msg="Please verify your email address." />}
+      <div className="container" style={{ maxWidth: '90%' }}>
+        {needVerification && (
+          <Message type="success" msg="Please verify your email address." />
+        )}
         <h1 className="is-size-1">Welcome {user?.firstName}</h1>
         <MaterialTable
           options={{
             columnsButton: true,
             headerStyle: {
-              position: "sticky",
+              position: 'sticky',
               top: 0,
               fontSize: 12,
-              whiteSpace: "nowrap",
+              whiteSpace: 'nowrap',
               width: 30,
             },
-            padding: "dense",
+            padding: 'dense',
             filtering: true,
             grouping: false,
             exportButton: true,
@@ -88,13 +102,15 @@ const AmazonInventory: FC = () => {
                   resolve('Done');
                 }, 1000);
               }),
-            onRowAddCancelled: (rowData) => console.log("Row adding cancelled"),
+            onRowAddCancelled: (rowData) => console.log('Row adding cancelled'),
             onRowUpdateCancelled: (rowData) =>
-              console.log("Row editing cancelled"),
+              console.log('Row editing cancelled'),
             onRowAdd: (newData) =>
               new Promise((resolve, reject) => {
                 setTimeout(() => {
-                  db.doc(`users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_/${newData.sku}`).set(newData, {
+                  db.doc(
+                    `users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_/${newData.sku}`
+                  ).set(newData, {
                     merge: true,
                   });
                   resolve('Done');
@@ -103,26 +119,28 @@ const AmazonInventory: FC = () => {
             onRowUpdate: (newData, oldData) =>
               new Promise((resolve, reject) => {
                 setTimeout(() => {
-                  db.doc(`users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_/${oldData.sku}`).update(
-                    newData
-                  );
-  
+                  db.doc(
+                    `users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_/${oldData.sku}`
+                  ).update(newData);
+
                   resolve('Done');
                 }, 1000);
               }),
             onRowDelete: (oldData) =>
               new Promise((resolve, reject) => {
                 setTimeout(() => {
-                  db.doc(`users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_/${oldData.sku}`).delete();
-  
+                  db.doc(
+                    `users/${user?.id}/_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_/${oldData.sku}`
+                  ).delete();
+
                   resolve('Done');
                 }, 1000);
               }),
           }}
-          />
+        />
       </div>
     </section>
   );
-}
+};
 
 export default AmazonInventory;

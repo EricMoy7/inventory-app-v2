@@ -1,17 +1,16 @@
-import * as firebase from "firebase-admin";
-import * as serviceAccount from "./config.json";
+import * as firebase from 'firebase-admin';
 
 const params = {
-  type: serviceAccount.type,
-  projectId: serviceAccount.project_id,
-  privateKeyId: serviceAccount.private_key_id,
-  privateKey: serviceAccount.private_key,
-  clientEmail: serviceAccount.client_email,
-  clientId: serviceAccount.client_id,
-  authUri: serviceAccount.auth_uri,
-  tokenUri: serviceAccount.token_uri,
-  authProviderX509CertUrl: serviceAccount.auth_provider_x509_cert_url,
-  clientC509CertUrl: serviceAccount.client_x509_cert_url,
+  type: process.env.FUNCTIONS_TYPE,
+  projectId: process.env.FUNCTIONS_PROJECT_ID,
+  privateKeyId: process.env.FUNCTIONS_PRIVATE_KEY_ID,
+  privateKey: process.env.FUNCTIONS_PRIVATE_KEY,
+  clientEmail: process.env.FUNCTIONS_CLIENT_EMAIL,
+  clientId: process.env.FUNCTIONS_CLIENT_ID,
+  authUri: process.env.FUNCTIONS_AUTH_URI,
+  tokenUri: process.env.FUNCTIONS_TOKEN_URI,
+  authProviderX509CertUrl: process.env.FUNCTIONS_AUTH_PROVIDER,
+  clientC509CertUrl: process.env.FUNCTIONS_CLIENT_CERT_URL,
 };
 
 firebase.initializeApp({

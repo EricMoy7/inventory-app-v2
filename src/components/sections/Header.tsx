@@ -38,9 +38,9 @@ const Header: FC = () => {
                 <div className="navbar-item has-dropdown is-hoverable">
                   <Link
                     className="navbar-item"
-                    to={!authenticated ? '/' : '/amazon-inventory'}
+                    to={!authenticated ? '/' : '/inventory'}
                   >
-                    Amazon Inventory
+                    Inventory
                   </Link>
 
                   <div className="navbar-dropdown">

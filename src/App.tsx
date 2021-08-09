@@ -23,6 +23,11 @@ import {
 import { RootState } from './store';
 import AmazonInventory from './components/pages/AmazonInventory';
 import ImportDataPage from './components/pages/ImportDataPage';
+import Inventory from './components/pages/Inventory';
+
+//Notifications Module
+import 'react-notifications-component/dist/theme.css';
+import ReactNotification from 'react-notifications-component';
 
 const App: FC = () => {
   const dispatch = useDispatch();
@@ -57,6 +62,7 @@ const App: FC = () => {
         rel="stylesheet"
         href="https://fonts.googleapis.com/icon?family=Material+Icons"
       />
+      <ReactNotification />
       <Header />
       <Switch>
         <PublicRoute path="/" component={Homepage} exact />
@@ -70,6 +76,7 @@ const App: FC = () => {
           component={AmazonInventory}
           exact
         />
+        <PrivateRoute path="/inventory" component={Inventory} exact />
         <PrivateRoute path="/import-data" component={ImportDataPage} exact />
       </Switch>
     </BrowserRouter>

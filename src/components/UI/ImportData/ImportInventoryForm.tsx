@@ -111,6 +111,17 @@ const ImportInventoryForm: FC = () => {
     }
   }, [headerState]);
 
+  /////////////////////////////////////////////////////////////////////////////
+  //Utility functions /////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+  function isIterable(obj: any) {
+    // checks for null and undefined
+    if (obj == null) {
+      return false;
+    }
+    return typeof obj[Symbol.iterator] === 'function';
+  }
+
   function camelCase(str: string) {
     return str
       .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word: string, index: number) {
@@ -118,6 +129,9 @@ const ImportInventoryForm: FC = () => {
       })
       .replace(/\s+/g, '');
   }
+  /////////////////////////////////////////////////////////////////////////////
+  //=========================================================================//
+  /////////////////////////////////////////////////////////////////////////////
 
   const handleChange = (event: any) => {
     let value = event.target.value;
@@ -187,15 +201,24 @@ const ImportInventoryForm: FC = () => {
       }
     }
 
-    const productDetails: { [key: string]: string | number | null } = {
-      ...headerState.headersObject,
-    };
+    const productDetails: { [key: string]: string | number | null | string[] } =
+      {
+        ...headerState.headersObject,
+      };
 
     for (let i = 1; i < (dataState as []).length - 1; i++) {
       const productName = dataState[i][indexMap.msku];
       for (const key in indexMap) {
         if (key === 'cost' || key === 'listPrice') {
           productDetails[key] = parseFloat(dataState[i][indexMap[key]]);
+        } else if (key === 'supplier') {
+          if (isIterable(dataState[i][indexMap[key]])) {
+            productDetails[key] = dataState[i][indexMap[key]]
+              .split(',')
+              .map((item) => item.trim());
+          } else {
+            productDetails[key] = [dataState[i][indexMap[key]]];
+          }
         } else {
           if (dataState[i][indexMap[key]] !== undefined) {
             productDetails[key] = dataState[i][indexMap[key]];

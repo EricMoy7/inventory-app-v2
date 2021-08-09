@@ -62,6 +62,7 @@ export interface ImportData {
 
 export interface ParentCompProps {
   childComp?: React.ReactNode;
+  data?: { [key: string]: string };
 }
 
 // Actions

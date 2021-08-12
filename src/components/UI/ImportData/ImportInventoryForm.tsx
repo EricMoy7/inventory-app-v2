@@ -201,10 +201,13 @@ const ImportInventoryForm: FC = () => {
       }
     }
 
-    const productDetails: { [key: string]: string | number | null | string[] } =
-      {
-        ...headerState.headersObject,
-      };
+    const productDetails: {
+      [key: string]: string | number | null | string[] | {};
+    } = {
+      ...headerState.headersObject,
+    };
+
+    console.log(indexMap);
 
     for (let i = 1; i < (dataState as []).length - 1; i++) {
       const productName = dataState[i][indexMap.msku];
@@ -213,9 +216,26 @@ const ImportInventoryForm: FC = () => {
           productDetails[key] = parseFloat(dataState[i][indexMap[key]]);
         } else if (key === 'supplier') {
           if (isIterable(dataState[i][indexMap[key]])) {
-            productDetails[key] = dataState[i][indexMap[key]]
+            const supplierObject: { [key: string]: string } = {};
+            const suppliers = dataState[i][indexMap[key]]
               .split(',')
               .map((item) => item.trim());
+            let supplierString = dataState[i][indexMap['supplierUrl']];
+
+            let supplierUrls;
+            if (supplierString) {
+              supplierUrls = supplierString
+                .split(',')
+                .map((item) => item.trim());
+            } else {
+              supplierUrls = new Array(suppliers.length).fill(null);
+            }
+
+            for (let i = 0; i < suppliers.length; i++) {
+              supplierObject[suppliers[i]] = supplierUrls[i];
+            }
+
+            productDetails[key] = supplierObject;
           } else {
             productDetails[key] = [dataState[i][indexMap[key]]];
           }

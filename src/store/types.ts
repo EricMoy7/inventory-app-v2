@@ -47,6 +47,7 @@ export interface ImportDataHeaders {
     imageUrl?: string | null;
     imageHeight?: string | null;
     imageWidth?: string | null;
+    supplierUrl?: string | string[] | null;
     //fix
     [key: string]: any;
   };

@@ -11,6 +11,7 @@ const initialState: ImportDataHeaders = {
     imageUrl: null,
     imageHeight: null,
     imageWidth: null,
+    supplierUrl: null,
   },
   headers: [],
   hasUploaded: false,

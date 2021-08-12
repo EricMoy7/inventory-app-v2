@@ -27,6 +27,13 @@ export const initHeaders = (data: [string], prevState: any): any => {
     if (header.toUpperCase() === 'MSKU') {
       prevState.headersObject.msku = header;
     }
+
+    if (
+      header.toUpperCase() === 'SUPPLIER URL' ||
+      header.toUpperCase() === 'SUPPPLIERURL'
+    ) {
+      prevState.headersObject.supplierUrl = header;
+    }
   }
   prevState.headers = data;
   return prevState;

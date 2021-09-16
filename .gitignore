@@ -23,3 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .env
+*/credentials.json
+functions/lib/firebase/credentials.json
+functions/src/amazon/lib/mwsApi.ts

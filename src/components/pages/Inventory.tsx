@@ -5,13 +5,44 @@ import MaterialTable from 'material-table';
 import Message from '../UI/Message';
 import { setSuccess } from '../../store/actions/authActions';
 import { RootState } from '../../store';
+// Firebase imports removed
+// import firebase from '../../firebase/config';
+// renderTableStyle import removed as logic is now inline or simplified
+// import { renderTableStyle } from '../utilities/renderTableStyle';
+// react-notifications-component import removed
+// import { store } from 'react-notifications-component';
 
-import firebase from '../../firebase/config';
+// Fake data for demo purposes based on user-provided Amazon links
+const fakeInventoryData = [
+  { msku: 'DEMO-001', asin: 'B085TFF7M1', 'product-name': 'Logitech C920x Pro HD Webcam', imageUrl: 'https://m.media-amazon.com/images/I/71iNwni9TsL._AC_SX679_.jpg', price: 59.99, quantity: 75, supplier: { 'Logitech Store': 'https://www.amazon.com/stores/Logitech' } },
+  { msku: 'DEMO-002', asin: 'B0CV4M5QXD', 'product-name': 'Logitech G502 Hero Mouse', imageUrl: 'https://m.media-amazon.com/images/I/61mpMH5TzkL._AC_SX679_.jpg', price: 49.99, quantity: 120, supplier: { 'Logitech Store': 'https://www.amazon.com/stores/Logitech' } },
+  { msku: 'DEMO-003', asin: 'B0BKVY4WKT', 'product-name': 'Logitech MX Keys S Combo', imageUrl: 'https://m.media-amazon.com/images/I/61+403-rNoL._AC_SL1500_.jpg', price: 199.99, quantity: 50, supplier: { 'Logitech Store': 'https://www.amazon.com/stores/Logitech' } },
+  { msku: 'DEMO-004', asin: 'B0CSP61VR4', 'product-name': 'GravaStar M2 Mouse', imageUrl: 'https://m.media-amazon.com/images/I/61lLcfYDCOL._AC_SL1500_.jpg', price: 79.95, quantity: 90, supplier: { 'GravaStar Store': 'https://www.amazon.com/stores/GravaStar' } },
+  { msku: 'DEMO-005', asin: 'B0C74GYW3J', 'product-name': 'FIFINE AmpliGame AM8T Microphone', imageUrl: 'https://m.media-amazon.com/images/I/61-0YoCB2LL._AC_SL1441_.jpg', price: 45.99, quantity: 110, supplier: { 'FIFINE Store': 'https://www.amazon.com/stores/FIFINEMICROPHONE' } },
+];
 
-import { renderTableStyle } from '../utilities/renderTableStyle';
-import { store } from 'react-notifications-component';
+// Static columns for demo purposes
+const fakeColumns = [
+  { title: 'Image', field: 'imageUrl', editable: 'never', render: (rowData: any) => <a href={`https://www.amazon.com/dp/${rowData.asin}`} target="_blank" rel="noreferrer"><img src={rowData.imageUrl} style={{ width: 50, height: 50 }} alt={rowData['product-name']} /></a> },
+  { title: 'MSKU', field: 'msku', editable: 'onAdd' }, // Keep MSKU editable on add for potential demo interaction
+  { title: 'Product Name', field: 'product-name', render: (rowData: any) => <div style={{ width: '200px', display: 'inline-block', fontSize: 'small', fontWeight: 'bold' }}>{rowData['product-name']}</div> },
+  { title: 'ASIN', field: 'asin' },
+  { title: 'Price', field: 'price', type: 'numeric' },
+  { title: 'Quantity', field: 'quantity', type: 'numeric' },
+  { title: 'Supplier', field: 'supplier', render: (rowData: any) => (
+    <div>
+      {rowData.supplier ? Object.keys(rowData.supplier).map((key: string) => (
+        <button key={key} className="bg-blue-500 hover:bg-blue-700 text-white text-xs font-bold py-1 px-2 rounded m-1" onClick={() => window.open(rowData.supplier[key], '_blank')}>
+          {key}
+        </button>
+      )) : <div></div>}
+      {/* Popper/Editor removed for demo */}
+    </div>
+  )},
+];
 
-const db = firebase.firestore();
+// Firestore instance removed
+// const db = firebase.firestore();
 
 const Inventory: FC = () => {
   const { user, needVerification, success } = useSelector(
@@ -19,79 +50,43 @@ const Inventory: FC = () => {
   );
   const dispatch = useDispatch();
 
-  const [rows, setRows] = useState<Array<any>>([]);
-  const [columns, setColumns] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Use fake data and columns
+  const [rows, setRows] = useState<Array<any>>(fakeInventoryData);
+  const [columns, setColumns] = useState<any[]>(fakeColumns); // Use any[] for simplicity with MaterialTable columns
+  const [isLoading, setIsLoading] = useState(false); // Set initial loading to false
 
-  //Set local inventory path
-  const inventoryPath = `users/${user?.id}/inventory`;
+  // Firebase path removed
+  // const inventoryPath = `users/${user?.id}/inventory`;
 
-  useEffect(() => {
-    if (success) {
-      dispatch(setSuccess(''));
-    }
-    console.log(user);
-  }, [success, dispatch]);
+  // Removed useEffect for success message handling related to Firebase
+  // useEffect(() => {
+  //   if (success) {
+  //     dispatch(setSuccess(''));
+  //   }
+  //   console.log(user);
+  // }, [success, dispatch]);
 
-  useEffect(() => {
-    const inventory = db.collection(`users/${user?.id}/inventory/`);
-    const headers = db.doc(
-      `users/${user?.id}/settings/headers/inventoryHeaders/mainHeaders`
-    );
-    try {
-      getHeaderData(headers);
-      getInventoryData(inventory);
-    } catch (err) {
-      console.log(err);
-    }
-    setIsLoading(false);
-  }, []);
+  // Removed useEffect for fetching data from Firebase
+  // useEffect(() => {
+  //   const inventory = db.collection(`users/${user?.id}/inventory/`);
+  //   const headers = db.doc(
+  //     `users/${user?.id}/settings/headers/inventoryHeaders/mainHeaders`
+  //   );
+  //   try {
+  //     getHeaderData(headers);
+  //     getInventoryData(inventory);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  //   setIsLoading(false);
+  // }, []);
 
-  function getInventoryData(
-    inventory: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>
-  ) {
-    const unsubscribe = inventory.onSnapshot((snapshot: { docs: any[] }) => {
-      const data = snapshot.docs.map((doc: { data: () => any }) => doc.data());
-      setRows(data);
-    });
-    return () => unsubscribe();
-  }
+  // Removed Firebase data fetching functions
+  // function getInventoryData(...) { ... }
+  // function getHeaderData(...) { ... }
 
-  function getHeaderData(
-    headers: firebase.firestore.DocumentReference<firebase.firestore.DocumentData>
-  ) {
-    const unsubscribe = headers.onSnapshot((snapshot) => {
-      let colList = snapshot?.data()?.columns;
-      if (colList) {
-        setColumns(renderTableStyle(colList, user));
-      }
-    });
-    return () => unsubscribe;
-  }
-
-  async function handleColumnDrag(
-    sourceIndex: number,
-    destinationIndex: number
-  ): Promise<void> {
-    //TODO: Correctly type this
-    const oldColumns = columns as any[];
-    const currentColumn = oldColumns.splice(sourceIndex, 1)[0];
-    oldColumns.splice(destinationIndex, 0, currentColumn);
-
-    const newHeaders = [];
-    for (let i = 0; i < oldColumns.length; i++) {
-      newHeaders.push({
-        title: oldColumns[i].title,
-        field: oldColumns[i].field
-          ? oldColumns[i].field
-          : oldColumns[i].title.toLowerCase(),
-        editable: oldColumns[i].editable ? oldColumns[i].editable : true,
-      });
-    }
-    await db
-      .doc(`users/${user?.id}/settings/headers/inventoryHeaders/mainHeaders`)
-      .set({ columns: newHeaders });
-  }
+  // Removed Firebase column drag handler
+  // async function handleColumnDrag(...) { ... }
 
   return (
     <section className="section">
@@ -99,12 +94,13 @@ const Inventory: FC = () => {
         {needVerification && (
           <Message type="success" msg="Please verify your email address." />
         )}
-        <h1 className="is-size-1">Welcome {user?.firstName}</h1>
+        {/* Display generic welcome or user first name if available */}
+        <h1 className="is-size-1">Welcome {user?.firstName || 'User'}</h1>
         <MaterialTable
-          title="All Inventory"
-          onColumnDragged={handleColumnDrag}
+          title="Demo Inventory" // Changed title
+          // onColumnDragged removed
           options={{
-            columnsButton: true,
+            columnsButton: true, // Keep columns button for UI demo
             headerStyle: {
               position: 'sticky',
               top: 0,
@@ -117,61 +113,12 @@ const Inventory: FC = () => {
             search: true,
             maxBodyHeight: 700,
             pageSize: 50,
-            pageSizeOptions: [10, 25, 50, 75, 100],
+            pageSizeOptions: [10, 25, 50, 75, 100], // Keep pagination options
           }}
-          isLoading={isLoading}
-          columns={columns}
-          data={rows}
-          editable={{
-            onBulkUpdate: (changes) =>
-              new Promise((resolve, reject) => {
-                setTimeout(() => {
-                  resolve('Done');
-                }, 1000);
-              }),
-            onRowAddCancelled: (rowData) => console.log('Row adding cancelled'),
-            onRowUpdateCancelled: (rowData) =>
-              console.log('Row editing cancelled'),
-            onRowAdd: (newData) =>
-              new Promise((resolve, reject) => {
-                setTimeout(() => {
-                  db.doc(`${inventoryPath}/${newData.msku}`).set(newData, {
-                    merge: true,
-                  });
-                  resolve('Done');
-                }, 1000);
-              }),
-            onRowUpdate: (newData, oldData) =>
-              new Promise((resolve, reject) => {
-                setTimeout(() => {
-                  db.doc(`${inventoryPath}/${oldData.msku}`).update(newData);
-
-                  resolve('Done');
-                }, 1000);
-              }),
-            onRowDelete: (oldData) =>
-              new Promise((resolve, reject) => {
-                setTimeout(() => {
-                  db.doc(`${inventoryPath}/${oldData.msku}`).delete();
-
-                  store.addNotification({
-                    title: 'Product Edit',
-                    message: `${oldData.msku} has successfully been deleted!`,
-                    type: 'success',
-                    insert: 'top',
-                    container: 'top-right',
-                    animationIn: ['animate__animated', 'animate__fadeIn'],
-                    animationOut: ['animate__animated', 'animate__fadeOut'],
-                    dismiss: {
-                      duration: 1000,
-                      onScreen: true,
-                    },
-                  });
-
-                  resolve('Done');
-                }, 1000);
-              }),
-          }}
+          isLoading={isLoading} // Keep loading state indicator
+          columns={columns} // Use static columns
+          data={rows} // Use static rows
+          // editable prop removed as Firebase interaction is disabled
         />
       </div>
     </section>

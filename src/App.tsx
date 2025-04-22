@@ -33,23 +33,18 @@ const App: FC = () => {
   const dispatch = useDispatch();
   const { loading } = useSelector((state: RootState) => state.auth);
 
-  // Check if user exists
+  // Mock authenticated user for UI preview
   useEffect(() => {
     dispatch(setLoading(true));
-    const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-      if (user) {
-        dispatch(setLoading(true));
-        await dispatch(getUserById(user.uid));
-        if (!user.emailVerified) {
-          dispatch(setNeedVerification());
-        }
-      }
-      dispatch(setLoading(false));
-    });
-
-    return () => {
-      unsubscribe();
+    // Simulate a logged in user
+    const mockUser = {
+      uid: 'mock-user-123',
+      email: 'demo@example.com',
+      emailVerified: true,
+      displayName: 'Demo User'
     };
+    dispatch(getUserById(mockUser.uid));
+    dispatch(setLoading(false));
   }, [dispatch]);
 
   if (loading) {

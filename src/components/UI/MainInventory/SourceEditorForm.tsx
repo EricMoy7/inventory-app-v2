@@ -37,7 +37,7 @@ const SourceEditorForm = (props: any) => {
           .doc(`users/${user?.id}/inventory/${props.msku}`)
           .set({ ...oldProduct, ...newSupplier });
       } else if (state.supplier) {
-        const newSupplier = { [state.supplier]: state.url };
+        const newSupplier = { [state.supplier!]: state.url }; // Added non-null assertion
         await db
           .doc(`users/${user?.id}/inventory/${props.msku}`)
           .set(

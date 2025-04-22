@@ -1,8 +1,14 @@
 import { AuthAction, AuthState, SET_USER, SET_LOADING, SIGN_OUT, SET_ERROR, NEED_VERIFICATION, SET_SUCCESS } from '../types';
 
+// Mock authenticated state for demo purposes
 const initialState: AuthState = {
-  user: null,
-  authenticated: false,
+  user: {
+    id: 'mock-user-123',
+    firstName: 'Demo User',
+    email: 'demo@example.com',
+    createdAt: new Date().toISOString()
+  },
+  authenticated: true,
   loading: false,
   error: '',
   needVerification: false,

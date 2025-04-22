@@ -2,6 +2,8 @@
 
 A comprehensive inventory management application built with React, TypeScript, Redux, and Firebase to help businesses track and manage their product inventory efficiently.
 
+## NOTICE: THIS APPLICATION IS NO LONGER BEING MAINTAINED, MWS API HAS BEEN DEPRECATED FOR THE NEW SELLER API.
+
 ![Inventory App Demo](demo/InventoryAppDemo.png)
 
 ## Features
